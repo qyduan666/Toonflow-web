@@ -10,7 +10,8 @@
           <div class="info ac">
             <h1 class="title">{{ project?.name }}</h1>
             <p class="meta">
-              <span v-if="project?.updatedAt && project?.updatedAt > 0">最后更新 {{ dayjs(project?.updatedAt).format("YYYY-MM-DD HH:mm:ss") }}</span>
+              <span v-if="project?.updatedAt && project?.updatedAt > 0">最后更新 {{
+                dayjs(project?.updatedAt).format("YYYY-MM-DD HH:mm:ss") }}</span>
             </p>
           </div>
         </div>
@@ -18,19 +19,21 @@
       <!-- sub nav -->
       <div class="jb ac">
         <div class="nav">
-          <button
-            v-for="item in subNavItems"
-            :key="item.id"
-            class="navBtn"
-            :class="{ navActive: item.id === currentSubView }"
-            @click="setCurrent(item.id)">
+          <button v-for="item in subNavItems" :key="item.id" class="navBtn"
+            :class="{ navActive: item.id === currentSubView }" @click="setCurrent(item.id)">
             <component :is="item.icon" :size="18" />
             <span class="navLabel">{{ item.label }}</span>
           </button>
         </div>
-        <div class="ac" style="margin-left: 20px; cursor: pointer" @click="taskFn">
-          <t-icon name="tips-double-filled" />
-          <span style="margin-left: 5px">任务中心</span>
+        <div class="f">
+          <div style="cursor: pointer; color: var(--td-brand-color)">
+            <t-icon name="system-3-filled" size="15" />
+            <span style="margin-left: 5px">项目资产</span>
+          </div>
+          <div class="ac" style="margin-left: 20px; cursor: pointer;color: var(--td-brand-color)"" @click="taskFn">
+            <t-icon name="tips-double-filled" size="15" />
+            <span style="margin-left: 5px">任务中心</span>
+          </div>
         </div>
       </div>
     </div>
@@ -125,6 +128,7 @@ function taskFn() {
           &:hover {
             background: var(--td-bg-color-secondarycontainer);
           }
+
           border: none;
           outline: none;
           cursor: pointer;
@@ -138,6 +142,7 @@ function taskFn() {
             color: var(--td-text-color-primary);
             margin: 0;
           }
+
           .meta {
             font-size: 13px;
             color: var(--td-text-color-secondary);
