@@ -225,15 +225,15 @@ async function nextAndKeepNovel() {
     nextLoading.value = false;
     return;
   }
-  // try {
-  // await axios.post("/novel/addNovel", { projectId: projectId.value, data: selectedRows.value });
-  activeKey.value = "To3";
-  emit("select", selectedRows.value);
-  nextLoading.value = false;
-  // } catch (e) {
-  //   MessagePlugin.error((e as Error).message);
-  //   nextLoading.value = false;
-  // }
+  try {
+    await axios.post("/novel/addNovel", { projectId: projectId.value, data: selectedRows.value });
+    activeKey.value = "To3";
+    emit("select", selectedRows.value);
+    nextLoading.value = false;
+  } catch (e) {
+    MessagePlugin.error((e as Error).message);
+    nextLoading.value = false;
+  }
 }
 </script>
 

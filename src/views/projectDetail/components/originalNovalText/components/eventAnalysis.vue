@@ -55,7 +55,7 @@
               padding: 12px 11px 9px 11px;
               border: 1px solid #efeafd;
             ">
-            <div class="collapseHeader flex-1 flex items-center">
+            <div class="collapseHeader ac">
               <span class="chapterOrder">{{ item.name }}</span>
               <span class="chapterKeypoint">{{ item.detail }}</span>
             </div>
@@ -78,12 +78,14 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-
+import axios from "@/utils/axios";
+import store from '@/stores'
+const {projectId} = storeToRefs(store())
 interface EventData {
   name: string; //事件名称
   detail: string; //事件内容
 }
-const activeKey = defineModel({ default: null });
+const activeKey = defineModel<string | null>({ default: null });
 const analyStatus = ref(0);
 //章节分割
 const splitRanges = ref<number[][]>([]);
@@ -94,9 +96,13 @@ const percentAi = ref(0);
 //当前正在分析 索引
 const stepAi = ref();
 
-function startAnalasy() {
+async function startAnalasy() {
   analyStatus.value = 1;
   //执行方法
+await axios.post("/novel/clearNovel",{
+  projectId:projectId.value,
+})
+console.log(12312312)
 }
 </script>
 

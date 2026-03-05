@@ -111,8 +111,8 @@ function handleOk() {
       emit("getProjects");
       resetForm();
     })
-    .catch(() => {
-      MessagePlugin.error("新增项目失败");
+    .catch((e) => {
+      MessagePlugin.error(e.message ?? "新增项目失败");
     })
     .finally(() => {
       addProjectShow.value = false;
