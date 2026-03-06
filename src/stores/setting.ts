@@ -1,6 +1,8 @@
 export default defineStore(
   "setting",
   () => {
+    const showSetting = ref(false);
+
     const baseUrl = ref<string>("http://localhost:60000");
     const wsBaseUrl = ref<string>("ws://localhost:60000");
 
@@ -14,7 +16,7 @@ export default defineStore(
       primaryColor: "#9810fa",
     });
 
-    return { baseUrl, wsBaseUrl, otherSetting, themeSetting };
+    return { showSetting, baseUrl, wsBaseUrl, otherSetting, themeSetting };
   },
   { persist: true },
 );

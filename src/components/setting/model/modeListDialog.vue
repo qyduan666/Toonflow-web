@@ -14,28 +14,27 @@
                   class="search-input"
                   @change="getData">
                   <template #suffix-icon>
-                    <SearchOutlined />
+                    <t-icon name="search" />
                   </template>
                 </t-input>
               </div>
               <div class="manufacturer-filter">
                 <div class="filter-header">
                   <span class="filter-label">
-                    <FilterOutlined />
+                    <t-icon name="filter" />
                     厂商筛选
                   </span>
-                  <a-button v-if="selectedManufacturers.length > 0" type="link" size="small" @click="clearFilters">清空筛选</a-button>
+                  <t-button v-if="selectedManufacturers.length > 0" variant="text" size="small" @click="clearFilters">清空筛选</t-button>
                 </div>
                 <div class="manufacturer-tags">
-                  <a-checkable-tag
+                  <t-check-tag
                     v-for="manufacturer in availableManufacturers"
                     :key="manufacturer.key"
                     :checked="selectedManufacturers.includes(manufacturer.key)"
                     @change="toggleManufacturer(manufacturer.key)"
                     class="manufacturer-tag">
-                    <a-badge :color="getManufacturerColor(manufacturer.key)" />
                     {{ manufacturer.name }}
-                  </a-checkable-tag>
+                  </t-check-tag>
                 </div>
               </div>
 
@@ -48,9 +47,9 @@
               </div>
             </div>
 
-            <a-divider style="margin: 16px 0" />
+            <t-divider style="margin: 16px 0" />
             <div class="cards-grid">
-              <a-empty v-if="getFilteredModels(tab.key).length === 0" description="未找到匹配的模型" :image="Empty.PRESENTED_IMAGE_SIMPLE" />
+              <t-empty v-if="getFilteredModels(tab.key).length === 0" description="未找到匹配的模型" />
               <template v-else>
                 <div
                   v-for="model in getFilteredModels(tab.key)"
@@ -62,13 +61,13 @@
                   </div>
                   <div class="card-header">
                     <h3 :title="model.modelName">{{ model.modelName }}</h3>
-                    <a-tag :color="getManufacturerColor(model.manufacturer)">{{ model.manufacturerName }}</a-tag>
+                    <t-tag :theme="getManufacturerTheme(model.manufacturer)" variant="light">{{ model.manufacturerName }}</t-tag>
                   </div>
                 </div>
                 <!-- 自定义卡片 -->
                 <div class="model-card custom-card" @click="selectCustomModel(tab.customType)">
                   <div class="card-icon">
-                    <PlusOutlined />
+                    <t-icon name="add" size="24px" />
                   </div>
                   <div class="card-header">
                     <h3>自定义模型</h3>
@@ -97,8 +96,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { message, Empty } from "ant-design-vue";
-import { SearchOutlined, FilterOutlined, PlusOutlined } from "@ant-design/icons-vue";
 import addModelDialog from "./addModelDialog.vue";
 import axios from "@/utils/axios";
 
@@ -194,6 +191,28 @@ function getManufacturerColor(manufacturer: string): string {
     other: "default",
   };
   return colors[manufacturer] || "default";
+}
+
+// 获取厂商 TDesign 主题
+function getManufacturerTheme(manufacturer: string): "primary" | "warning" | "success" | "danger" | "default" {
+  const themes: Record<string, "primary" | "warning" | "success" | "danger" | "default"> = {
+    deepSeek: "primary",
+    volcengine: "warning",
+    kling: "primary",
+    zhipu: "success",
+    qwen: "success",
+    wan: "success",
+    openai: "primary",
+    vidu: "danger",
+    anthropic: "warning",
+    runninghub: "warning",
+    gemini: "success",
+    modelScope: "primary",
+    xai: "danger",
+    grsai: "primary",
+    other: "default",
+  };
+  return themes[manufacturer] || "default";
 }
 
 // 厂商默认 BaseURL 配置
@@ -574,12 +593,12 @@ function getData() {
 }
 
 .model-card {
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--td-border-level-1-color);
   border-radius: 10px;
   padding: 20px;
   cursor: pointer;
   transition: all 0.25s ease;
-  background: #fff;
+  background: var(--td-bg-color-container);
   display: flex;
   flex-direction: column;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
@@ -591,15 +610,12 @@ function getData() {
 
   .card-icon {
     font-size: 24px;
-    color: #1890ff;
+    color: var(--td-brand-color);
     transition: all 0.25s ease;
-    &:deep(.anticon) {
-      display: block;
-    }
   }
 
   &:hover .card-icon {
-    color: #40a9ff;
+    color: var(--td-brand-color-hover);
   }
 
   .card-header {
@@ -613,18 +629,9 @@ function getData() {
       margin: 0;
       font-size: 15px;
       font-weight: 600;
-      color: #262626;
+      color: var(--td-text-color-primary);
       overflow: hidden;
       flex: 1;
-    }
-
-    :deep(.ant-tag) {
-      border-radius: 4px;
-      border: 0;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 4px 10px;
-      flex-shrink: 0;
     }
   }
 
@@ -635,14 +642,14 @@ function getData() {
     justify-content: space-between;
 
     .model-description {
-      color: #8c8c8c;
+      color: var(--td-text-color-secondary);
       font-size: 13px;
       line-height: 1.5;
     }
 
     .model-type {
       font-size: 12px;
-      color: #8c8c8c;
+      color: var(--td-text-color-secondary);
 
       .type-label {
         font-weight: 500;
@@ -653,8 +660,8 @@ function getData() {
 }
 
 .custom-card {
-  border: 1px dashed #d9d9d9;
-  background: #fafafa;
+  border: 1px dashed var(--td-border-level-2-color);
+  background: var(--td-bg-color-container-hover);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -662,34 +669,34 @@ function getData() {
   transition: all 0.25s ease;
 
   &:hover {
-    border-color: #1890ff;
-    background: #f5f9ff;
+    border-color: var(--td-brand-color);
+    background: var(--td-brand-color-light);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 
     .card-icon {
-      color: #40a9ff;
+      color: var(--td-brand-color-hover);
     }
 
     .card-header h3 {
-      color: #1890ff;
+      color: var(--td-brand-color);
     }
   }
 
   .card-icon {
-    color: #1890ff;
+    color: var(--td-brand-color);
     font-size: 36px;
     margin-bottom: 8px;
     transition: all 0.25s ease;
   }
 
   .card-header h3 {
-    color: #1890ff;
+    color: var(--td-brand-color);
     font-weight: 600;
     transition: color 0.25s ease;
   }
 
   .card-body .model-description {
-    color: #8c8c8c;
+    color: var(--td-text-color-secondary);
     text-align: center;
     font-size: 13px;
   }
@@ -708,17 +715,17 @@ function getData() {
 
     :deep(.t-input__wrap) {
       border-radius: 6px;
-      border: 1px solid #f0f0f0;
+      border: 1px solid var(--td-border-level-1-color);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
       transition: all 0.25s ease;
 
       &:hover {
-        border-color: #d9d9d9;
+        border-color: var(--td-border-level-2-color);
       }
 
       &:focus-within {
-        border-color: #1890ff;
-        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.12);
+        border-color: var(--td-brand-color);
+        box-shadow: 0 2px 8px rgba(var(--td-brand-color-rgb), 0.12);
       }
     }
 
@@ -741,13 +748,10 @@ function getData() {
     .filter-label {
       font-size: 14px;
       font-weight: 500;
-      color: #636464;
+      color: var(--td-text-color-secondary);
       display: flex;
       align-items: center;
       gap: 6px;
-      :deep(.anticon) {
-        color: #1890ff;
-      }
     }
   }
 
@@ -765,36 +769,7 @@ function getData() {
       font-size: 13px;
       cursor: pointer;
       transition: all 0.25s ease;
-      border: 1px solid #d9d9d9;
-      background: #fff;
       user-select: none;
-
-      &:hover {
-        border-color: #1890ff;
-        color: #1890ff;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 6px rgba(24, 144, 255, 0.12);
-      }
-
-      &.ant-tag-checkable-checked {
-        background: #1890ff;
-        border-color: #1890ff;
-        color: #fff;
-        font-weight: 500;
-        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.25);
-
-        &:hover {
-          background: #40a9ff;
-          border-color: #40a9ff;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
-        }
-      }
-
-      :deep(.ant-badge-status-dot) {
-        width: 8px;
-        height: 8px;
-      }
     }
   }
 }
@@ -802,29 +777,24 @@ function getData() {
 .filter-result {
   margin-top: 12px;
   padding: 8px 12px;
-  background: #e6f7ff;
-  border-left: 3px solid #1890ff;
+  background: var(--td-brand-color-light);
+  border-left: 3px solid var(--td-brand-color);
   border-radius: 4px;
 
   .result-text {
     font-size: 13px;
-    color: #0050b3;
+    color: var(--td-brand-color-active);
 
     strong {
       font-weight: 600;
-      color: #1890ff;
+      color: var(--td-brand-color);
       font-size: 14px;
     }
   }
 }
 
 // 空状态样式优化
-:deep(.ant-empty) {
+:deep(.t-empty) {
   margin: 60px 0;
-
-  .ant-empty-description {
-    color: #8c8c8c;
-    font-size: 14px;
-  }
 }
 </style>

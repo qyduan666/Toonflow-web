@@ -1,7 +1,7 @@
 <template>
   <div class="task">
     <div class="header">
-      <div class="headerInfo">
+      <div class="headerInfo fc">
         <span class="title">任务列表</span>
         <span class="sub">您的最新任务执行记录</span>
       </div>

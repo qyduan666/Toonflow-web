@@ -51,10 +51,6 @@ const router = createRouter({
           path: "/assets",
           component: () => import("@/views/assets/index.vue"),
         },
-        {
-          path: "/setting",
-          component: () => import("@/views/setting/index.vue"),
-        },
       ],
     },
     {

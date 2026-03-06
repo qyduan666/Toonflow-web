@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { message as ElMessage } from "ant-design-vue";
+import { MessagePlugin } from "tdesign-vue-next";
 import axios from "@/utils/axios";
 
 interface Prompt {
@@ -136,7 +136,7 @@ function selectPrompt(prompt: Prompt) {
 function resetToDefault() {
   if (!currentPrompt.value) return;
   editingValue.value = processLineBreaks(currentPrompt.value.defaultValue || "");
-  ElMessage.info("已重置为默认值，点击保存生效");
+  MessagePlugin.info("已重置为默认值，点击保存生效");
 }
 
 async function savePrompt() {
@@ -154,9 +154,9 @@ async function savePrompt() {
 
     const index = promptList.value.findIndex((p) => p.code === currentPrompt.value?.code);
     if (index !== -1) promptList.value[index].customValue = customVal;
-    ElMessage.success("保存成功");
+    MessagePlugin.success("保存成功");
   } catch {
-    ElMessage.error("保存失败");
+    MessagePlugin.error("保存失败");
   } finally {
     saving.value = false;
   }
@@ -168,7 +168,7 @@ async function fetchPrompts() {
     promptList.value = res.data || [];
     if (promptList.value.length > 0) selectPrompt(promptList.value[0]);
   } catch {
-    ElMessage.error("获取提示词列表失败");
+    MessagePlugin.error("获取提示词列表失败");
   }
 }
 

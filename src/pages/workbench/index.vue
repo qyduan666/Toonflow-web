@@ -13,61 +13,52 @@
           :showArrow="false"
           v-for="(menu, index) in menuList"
           :key="index">
-          <div class="item fc c" v-if="menu.type === 'btn'" :class="{ active: activeMenu == menu.path }" @click="handleClick(menu.path!)">
+          <div
+            class="item fc c"
+            v-if="menu.type === 'btn'"
+            :class="{ active: activeMenu == menu.path, disabled: menu.needProject && !project }"
+            @click="handleClick(menu)">
             <component :is="menu.icon" class="icon" />
-            <span v-if="menu.showTitle" class="title">{{ menu.label }}</span>
           </div>
           <div class="divider" v-if="menu.type === 'divider'"></div>
         </t-tooltip>
       </div>
       <div class="footItem fc ac">
-        <t-tooltip
-          :content="menu.label"
-          placement="right"
-          theme="light"
-          destroyOnClose
-          :showArrow="false"
-          v-for="(menu, index) in footMenuList"
-          :key="index">
-          <div class="item c" :class="{ active: activeMenu == menu.path }" @click="handleClick(menu.path)">
-            <component :is="menu.icon" class="icon" />
+        <t-tooltip content="设置" placement="right" theme="light" destroyOnClose :showArrow="false">
+          <div class="item c" @click="showSetting = true">
+            <i-setting-one class="icon" />
           </div>
         </t-tooltip>
+        <t-avatar style="margin-top: 8px" image="https://tdesign.gtimg.com/site/avatar.jpg" />
       </div>
     </div>
     <div class="view">
       <router-view />
     </div>
   </div>
+  <setting />
 </template>
 
 <script setup lang="ts">
+import setting from '@/components/setting/index.vue';
+
 import projectStore from "@/stores/project";
 const { project } = storeToRefs(projectStore());
+import settingStore from "@/stores/setting";
+const { showSetting } = storeToRefs(settingStore());
 
-const menuList = computed(() => {
-  if (project.value && project.value.id) {
-    return [
-      { type: "btn", path: "/project", label: "我的项目", icon: "i-folder-close" },
-      { type: "btn", path: "/task", label: "任务中心", icon: "i-view-list" },
-      { type: "divider" },
-      // { type: "btn", path: "/detail", label: "项目总览", icon: "i-more-app", showTitle: true },
-      { type: "btn", path: "/novel", label: "小说原文", icon: "i-notebook", showTitle: true },
-      { type: "btn", path: "/agent", label: "剧本Agent", icon: "i-color-filter", showTitle: true },
-      { type: "btn", path: "/script", label: "剧本管理", icon: "i-document-folder", showTitle: true },
-      { type: "btn", path: "/production", label: "视频生产", icon: "i-carousel-video", showTitle: true },
-      { type: "divider" },
-      { type: "btn", path: "/assets", label: "资产中心", icon: "i-receive", showTitle: true },
-    ];
-  } else {
-    return [
-      { type: "btn", path: "/project", label: "我的项目", icon: "i-folder-close" },
-      { type: "btn", path: "/task", label: "任务中心", icon: "i-view-list" },
-    ];
-  }
-});
-
-const footMenuList = [{ type: "btn", path: "/setting", label: "设置", icon: "i-setting" }];
+const menuList = ref([
+  { type: "btn", path: "/project", label: "我的项目", icon: "i-folder-close" },
+  { type: "btn", path: "/task", label: "任务中心", icon: "i-view-list" },
+  { type: "divider" },
+  // { type: "btn", path: "/detail", label: "项目总览", icon: "i-more-app", showTitle: true },
+  { type: "btn", path: "/novel", label: "小说原文", icon: "i-notebook", needProject: true },
+  { type: "btn", path: "/agent", label: "剧本Agent", icon: "i-color-filter", needProject: true },
+  { type: "btn", path: "/script", label: "剧本管理", icon: "i-document-folder", needProject: true },
+  { type: "btn", path: "/production", label: "视频生产", icon: "i-carousel-video", needProject: true },
+  { type: "divider" },
+  { type: "btn", path: "/assets", label: "资产中心", icon: "i-receive", needProject: true },
+]);
 
 const router = useRouter();
 const route = useRoute();
@@ -80,10 +71,10 @@ watch(
   },
 );
 
-function handleClick(value: string | number) {
-  const path = String(value);
-  router.push(path);
-  activeMenu.value = path;
+function handleClick(menu: any) {
+  if (menu.needProject && !project.value) return;
+  router.push(menu.path);
+  activeMenu.value = menu.path;
 }
 </script>
 
@@ -135,6 +126,10 @@ function handleClick(value: string | number) {
           background-color: #ecedef;
           border-radius: 16px;
         }
+      }
+      .disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
       }
       .active {
         background-color: #000 !important;
