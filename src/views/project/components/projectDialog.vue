@@ -3,15 +3,15 @@
     <t-dialog
       placement="center"
       v-model:visible="addProjectShow"
-      header="新建项目"
+      :header="isEdit ? '编辑项目' : '新建项目'"
       width="60%"
       @confirm="handleOk"
       @close-btn-click="handleCancel"
       @cancel="handleCancel"
-      confirm-btn="确定"
+      :confirm-btn="isEdit ? '保存' : '确定'"
       cancel-btn="取消">
       <t-form :data="formState" label-align="left">
-        <t-form-item label="项目类型">
+        <t-form-item v-if="!isEdit" label="项目类型">
           <t-select v-model="formState.projectType" placeholder="选择项目类型">
             <t-option key="基于小说原文" label="基于小说原文" value="基于小说原文" />
             <t-option key="基于剧本" label="基于剧本" value="基于剧本" />
@@ -76,11 +76,24 @@ import { ref, watch } from "vue";
 import axios from "@/utils/axios";
 
 const addProjectShow = defineModel<boolean>();
+const props = defineProps<{
+  projectData?: ProjectData | null;
+}>();
 const emit = defineEmits<{
   (e: "add", data: ProjectFormData): void;
+  (e: "edit", data: { id: string; name: string; intro: string; type: string; artStyle: string; videoRatio: string }): void;
 }>();
 
 // ===== 类型定义 =====
+interface ProjectData {
+  id: string;
+  name: string;
+  intro: string;
+  type: string;
+  artStyle: string | null;
+  videoRatio: string | null;
+}
+
 interface ProjectFormData {
   projectType: string;
   name: string;
@@ -95,11 +108,13 @@ interface ArtStyleItem {
   label: string;
 }
 
+const isEdit = computed(() => !!props.projectData);
+
 // ===== 常量 =====
 const RATIO_OPTIONS = [
   { value: "16:9", label: "16:9" },
   { value: "9:16", label: "9:16" },
-] as const;
+];
 
 const ART_STYLE_TABS = ["常用风格", "IP风格", "插画风格", "可爱Q版", "立体风格", "日系风格", "自定义风格"] as const;
 const artStyleTabs = ref([...ART_STYLE_TABS]);
@@ -130,14 +145,25 @@ function handleCancel() {
 }
 
 function handleOk() {
-  emit("add", {
-    projectType: formState.value.projectType || "基于小说原文",
-    name: formState.value.name || "名称",
-    intro: formState.value.intro || "这个是一条小说简介",
-    type: formState.value.type || "玄幻",
-    artStyle: formState.value.artStyle || "动漫",
-    videoRatio: formState.value.videoRatio || "16:9",
-  });
+  if (isEdit.value) {
+    emit("edit", {
+      id: formState.value.id as unknown as string,
+      name: formState.value.name,
+      intro: formState.value.intro,
+      type: formState.value.type,
+      artStyle: formState.value.artStyle,
+      videoRatio: formState.value.videoRatio,
+    });
+  } else {
+    emit("add", {
+      projectType: formState.value.projectType || "基于小说原文",
+      name: formState.value.name || "名称",
+      intro: formState.value.intro || "这个是一条小说简介",
+      type: formState.value.type || "玄幻",
+      artStyle: formState.value.artStyle || "动漫",
+      videoRatio: formState.value.videoRatio || "16:9",
+    });
+  }
   resetForm();
   addProjectShow.value = false;
 }
@@ -150,6 +176,19 @@ const customizeName = ref("");
 
 watch(addProjectShow, (visible) => {
   if (visible) {
+    if (props.projectData) {
+      formState.value = {
+        ...DEFAULT_FORM(),
+        id: props.projectData.id as unknown as number,
+        name: props.projectData.name || "",
+        intro: props.projectData.intro || "",
+        type: props.projectData.type || "",
+        artStyle: props.projectData.artStyle || "",
+        videoRatio: props.projectData.videoRatio || "16:9",
+      };
+    } else {
+      resetForm();
+    }
     currentArtStyleTab.value = "常用风格";
     customizeName.value = "";
     fetchArtStyles();

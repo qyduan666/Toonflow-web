@@ -2,7 +2,7 @@
   <div class="themeConfig">
     <t-form label-align="top">
       <!-- 主题模式切换 -->
-      <t-form-item label="主题模式（切换后建议重启）">
+      <!-- <t-form-item label="主题模式（切换后建议重启）">
         <t-radio-group
           v-model="themeSetting.mode"
           variant="default-filled"
@@ -26,7 +26,7 @@
             </template>
           </t-radio-button>
         </t-radio-group>
-      </t-form-item>
+      </t-form-item> -->
 
       <!-- 主题色选择 -->
       <t-form-item label="主题色">

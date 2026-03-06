@@ -5,8 +5,13 @@
         <span class="title">我的项目</span>
         <span class="sub">管理您的所有短剧项目</span>
       </div>
-      <t-button class="addBtn" @click="addProjectShow = true">
-        <i-plus class="addIcon" :size="20" />
+      <t-button
+        class="addBtn"
+        @click="
+          editProjectData = null;
+          dialogShow = true;
+        ">
+        <template #icon><i-plus class="addIcon" :size="20" /></template>
         新建项目
       </t-button>
     </div>
@@ -25,8 +30,13 @@
               <div class="time">
                 <span>{{ dayjs(project?.createTime).format("YYYY-MM-DD HH:mm:ss") }}</span>
               </div>
-              <div class="removeBtn" @click.stop="delProjcer(project.id)">
-                <i-delete :size="18" />
+              <div class="actionBtns f ac">
+                <div class="editBtn" @click.stop="openEdit(project)">
+                  <i-edit :size="18" />
+                </div>
+                <div class="removeBtn" @click.stop="delProjcer(project.id)">
+                  <i-delete :size="18" />
+                </div>
               </div>
             </div>
           </t-card>
@@ -34,17 +44,20 @@
       </t-row>
     </div>
   </div>
-  <addProject v-model="addProjectShow" @add="addProjectFn" />
+  <projectDialog v-model="dialogShow" :projectData="editProjectData" @add="addProjectFn" @edit="editProjectFn" />
 </template>
 
 <script setup lang="ts">
-import addProject from "./components/addProject.vue";
+import projectDialog from "./components/projectDialog.vue";
 import dayjs from "dayjs";
 import axios from "@/utils/axios";
 import projectStore from "@/stores/project";
 const { allProject, project } = storeToRefs(projectStore());
 
-const addProjectShow = ref(false);
+const dialogShow = ref(false);
+const editProjectData = ref<{ id: string; name: string; intro: string; type: string; artStyle: string | null; videoRatio: string | null } | null>(
+  null,
+);
 
 function getAllProject() {
   axios
@@ -58,6 +71,7 @@ function getAllProject() {
 }
 
 onMounted(() => {
+  project.value = null;
   getAllProject();
 });
 
@@ -67,7 +81,24 @@ function openProject(projectId: string | undefined) {
   const item = allProject.value.find((p) => p.id === projectId);
   if (item) project.value = item;
   else return window.$message.error("未找到该项目!");
-  router.push(`/projectDetail?id=${projectId}`);
+  router.push(`/novel`);
+}
+
+function openEdit(item: { id: string; name: string; intro: string; type: string; artStyle: string | null; videoRatio: string | null }) {
+  editProjectData.value = item;
+  dialogShow.value = true;
+}
+
+function editProjectFn(data: { id: string; name: string; intro: string; type: string; artStyle: string; videoRatio: string }) {
+  axios
+    .post("/project/editProject", data)
+    .then(() => {
+      window.$message.success("编辑项目成功");
+      getAllProject();
+    })
+    .catch((e) => {
+      window.$message.error(e.message ?? "编辑项目失败");
+    });
 }
 
 function addProjectFn(data: { projectType: string; name: string; intro: string; type: string; artStyle: string; videoRatio: string }) {
@@ -136,7 +167,17 @@ function delProjcer(projectId: string | undefined) {
         .time {
           opacity: 0.5;
         }
+        .actionBtns {
+          gap: 12px;
+        }
+        .editBtn {
+          cursor: pointer;
+          &:hover {
+            color: var(--td-brand-color);
+          }
+        }
         .removeBtn {
+          cursor: pointer;
           &:hover {
             color: red;
           }

@@ -131,7 +131,6 @@
         </div>
       </div>
     </div>
-    <artStyle v-model:artStyleShow="artStyleShow" v-model:artStyleData="projectEditData.artStyle" />
   </div>
 </template>
 
@@ -139,7 +138,6 @@
 import axios from "@/utils/axios";
 import { message } from "ant-design-vue";
 import store from "@/stores";
-import artStyle from "@/views/project/components/artStyle.vue";
 const { project, projectId } = storeToRefs(store());
 
 const globalSettingEdit = ref(false);

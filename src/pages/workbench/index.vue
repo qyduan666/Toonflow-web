@@ -42,24 +42,43 @@
 </template>
 
 <script setup lang="ts">
-const menuList = [
-  { type: "btn", path: "/project", label: "我的项目", icon: "i-folder-close" },
-  { type: "btn", path: "/taskList", label: "任务中心", icon: "i-view-list" },
-  { type: "divider" },
-  { type: "btn", path: "/setting", label: "项目总览", icon: "i-more-app", showTitle: true },
-  { type: "btn", path: "/setting", label: "小说原文", icon: "i-notebook", showTitle: true },
-  { type: "btn", path: "/setting", label: "剧本AI", icon: "i-color-filter", showTitle: true },
-  { type: "btn", path: "/setting", label: "剧本管理", icon: "i-document-folder", showTitle: true },
-  { type: "btn", path: "/setting", label: "视频生产", icon: "i-carousel-video", showTitle: true },
-  { type: "divider" },
-  { type: "btn", path: "/setting", label: "资产中心", icon: "i-receive", showTitle: true },
-];
+import projectStore from "@/stores/project";
+const { project } = storeToRefs(projectStore());
+
+const menuList = computed(() => {
+  if (project.value && project.value.id) {
+    return [
+      { type: "btn", path: "/project", label: "我的项目", icon: "i-folder-close" },
+      { type: "btn", path: "/task", label: "任务中心", icon: "i-view-list" },
+      { type: "divider" },
+      // { type: "btn", path: "/detail", label: "项目总览", icon: "i-more-app", showTitle: true },
+      { type: "btn", path: "/novel", label: "小说原文", icon: "i-notebook", showTitle: true },
+      { type: "btn", path: "/agent", label: "剧本Agent", icon: "i-color-filter", showTitle: true },
+      { type: "btn", path: "/script", label: "剧本管理", icon: "i-document-folder", showTitle: true },
+      { type: "btn", path: "/production", label: "视频生产", icon: "i-carousel-video", showTitle: true },
+      { type: "divider" },
+      { type: "btn", path: "/assets", label: "资产中心", icon: "i-receive", showTitle: true },
+    ];
+  } else {
+    return [
+      { type: "btn", path: "/project", label: "我的项目", icon: "i-folder-close" },
+      { type: "btn", path: "/task", label: "任务中心", icon: "i-view-list" },
+    ];
+  }
+});
 
 const footMenuList = [{ type: "btn", path: "/setting", label: "设置", icon: "i-setting" }];
 
 const router = useRouter();
 const route = useRoute();
 const activeMenu = ref(route.path);
+
+watch(
+  () => route.path,
+  (newPath) => {
+    activeMenu.value = newPath;
+  },
+);
 
 function handleClick(value: string | number) {
   const path = String(value);
@@ -108,9 +127,8 @@ function handleClick(value: string | number) {
         .icon {
           font-size: 24px;
         }
-        .title{
-          font-size: 12px;
-          opacity: 0.8;
+        .title {
+          font-size: 10px;
           white-space: nowrap;
         }
         &:hover {

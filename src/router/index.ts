@@ -24,17 +24,37 @@ const router = createRouter({
           component: () => import("@/views/project/index.vue"),
         },
         {
-          path: "/projectDetail",
-          component: () => import("@/views/projectDetail/index.vue"),
+          path: "/task",
+          component: () => import("@/views/task/index.vue"),
+        },
+        // {
+        //   path: "/detail",
+        //   component: () => import("@/views/detail/index.vue"),
+        // },
+        {
+          path: "/novel",
+          component: () => import("@/views/novel/index.vue"),
+        },
+        {
+          path: "/agent",
+          component: () => import("@/views/agent/index.vue"),
+        },
+        {
+          path: "/script",
+          component: () => import("@/views/script/index.vue"),
+        },
+        {
+          path: "/production",
+          component: () => import("@/views/production/index.vue"),
+        },
+        {
+          path: "/assets",
+          component: () => import("@/views/assets/index.vue"),
         },
         {
           path: "/setting",
           component: () => import("@/views/setting/index.vue"),
         },
-        // {
-        //   path: "/taskList",
-        //   component: () => import("@/views/taskList/index.vue"),
-        // },
       ],
     },
     {
