@@ -5,11 +5,6 @@
       <t-input v-model="searchKeyword" placeholder="搜索模型..." clearable size="small" class="searchInput">
         <template #prefix-icon><i-search theme="outline" size="14" /></template>
       </t-input>
-      <t-radio-group v-model="filterType" variant="default-filled" size="small">
-        <t-radio-button value="all">全部</t-radio-button>
-        <t-radio-button value="text">文本模型</t-radio-button>
-        <t-radio-button value="image">图片模型</t-radio-button>
-      </t-radio-group>
     </div>
 
     <!-- 卡片列表 -->
@@ -25,13 +20,11 @@
           <t-avatar size="36px" v-else shape="round">
             <template #icon><i-robot theme="outline" size="20" fill="currentColor" /></template>
           </t-avatar>
-          <span class="descText">{{ DESC_MAP[item.key] || `${item.key} 模型配置` }}</span>
+          <span class="descText">{{ item.desc }}</span>
         </div>
         <div class="skillCardFooter">
           <div class="footerLeft">
-            <t-tag :theme="isTextModel(item.key) ? 'primary' : 'warning'" variant="outline" size="small">
-              {{ isTextModel(item.key) ? "文本模型" : "图片模型" }}
-            </t-tag>
+            <t-tag theme="primary" variant="outline" size="small">语言模型</t-tag>
             <span v-if="item.manufacturer" class="mfr">{{ item.manufacturer }}</span>
           </div>
           <t-dropdown :options="MENU_OPTIONS" trigger="click" @click="(v: any) => onMenu(v, item)">
@@ -45,17 +38,12 @@
     </div>
   </div>
 
-  <modelDataDom v-model:modelDataShow="modelDataShow" :currentType="currentType" v-model:configingModel="configingModel" @modelList="reloadModels" />
-  <promptEditDialog v-model="promptDialogVisible" :header="`编辑提示词 - ${promptDialogTitle}`" listTitle="关联提示词" :prompts="relatedPrompts" />
+  <modelDataDom v-model:modelDataShow="modelDataShow" currentType="text" v-model:configingModel="configingModel" />
 </template>
 
 <script setup lang="ts">
 import modelDataDom from "../model/modelData.vue";
-import promptEditDialog from "./promptEditDialog.vue";
-import type { Prompt } from "./promptEditDialog.vue";
 import providersLogo from "@/utils/ai/providersLogo";
-import axios from "@/utils/axios";
-import { MessagePlugin } from "tdesign-vue-next";
 
 interface ModelType {
   id: number;
@@ -63,111 +51,50 @@ interface ModelType {
   name: string;
   key: string;
   manufacturer: string;
+  desc: string;
 }
-
-// ===== 常量 =====
-const TEXT_KEYS = new Set(["storyboardAgent", "outlineScriptAgent", "assetsPrompt", "generateScript", "videoPrompt"]);
-const IMAGE_KEYS = new Set(["editImage", "storyboardImage", "assetsImage"]);
-const isTextModel = (key: string) => TEXT_KEYS.has(key) || key.includes("Agent") || key.includes("Script") || key.includes("Prompt");
-
-const DESC_MAP: Record<string, string> = {
-  storyboardAgent: "根据剧本自动生成分镜描述，将文字转化为画面指令",
-  outlineScriptAgent: "从小说原文提取关键情节，生成结构化剧本大纲",
-  assetsPrompt: "根据角色和场景要素，生成精准的素材提示词",
-  generateScript: "将大纲扩展为完整剧本脚本，包含对话和场景描写",
-  videoPrompt: "为视频生成提供画面描述和风格化提示词",
-  editImage: "对已有图片进行编辑修改，支持局部重绘和风格调整",
-  storyboardImage: "根据分镜描述生成对应的故事板画面",
-  assetsImage: "生成角色立绘、场景图等项目素材图片",
-};
 
 const MENU_OPTIONS = [
   { content: "配置模型", value: "config" },
-  { content: "编辑提示词", value: "editPrompt" },
 ];
 
-// ===== 数据 =====
-const modelData = ref<ModelType[]>([]);
+// ===== 假数据（仅语言模型） =====
+const modelData = ref<ModelType[]>([
+  { id: 1, model: "deepseek-v3", name: "分镜生成", key: "storyboardAgent", manufacturer: "deepSeek", desc: "根据剧本自动生成分镜描述，将文字转化为画面指令" },
+  { id: 2, model: "qwen-max", name: "大纲剧本", key: "outlineScriptAgent", manufacturer: "qwen", desc: "从小说原文提取关键情节，生成结构化剧本大纲" },
+  { id: 3, model: "glm-4-plus", name: "素材提示词", key: "assetsPrompt", manufacturer: "zhipu", desc: "根据角色和场景要素，生成精准的素材提示词" },
+  { id: 4, model: "gpt-4o", name: "剧本生成", key: "generateScript", manufacturer: "openai", desc: "将大纲扩展为完整剧本脚本，包含对话和场景描写" },
+  { id: 5, model: "gemini-2.0-flash", name: "视频提示词", key: "videoPrompt", manufacturer: "gemini", desc: "为视频生成提供画面描述和风格化提示词" },
+]);
+
 const modelDataShow = ref(false);
 const configingModel = ref<ModelType>();
-const currentType = ref("");
 const searchKeyword = ref("");
-const filterType = ref("all");
 
-// 按类型(文本优先) + 名称排序，再按搜索和类型筛选
 const filteredModels = computed(() => {
-  const sorted = [...modelData.value].sort((a, b) => {
-    const ta = isTextModel(a.key) ? 0 : 1;
-    const tb = isTextModel(b.key) ? 0 : 1;
-    return ta !== tb ? ta - tb : a.name.localeCompare(b.name, "zh-CN");
-  });
-  return sorted.filter((item) => {
-    if (filterType.value === "text" && !isTextModel(item.key)) return false;
-    if (filterType.value === "image" && isTextModel(item.key)) return false;
-    if (searchKeyword.value) {
-      const kw = searchKeyword.value.toLowerCase();
-      return item.name.toLowerCase().includes(kw) || item.key.toLowerCase().includes(kw) || (item.manufacturer || "").toLowerCase().includes(kw);
-    }
-    return true;
-  });
+  if (!searchKeyword.value) return modelData.value;
+  const kw = searchKeyword.value.toLowerCase();
+  return modelData.value.filter((item) =>
+    item.name.toLowerCase().includes(kw) || item.key.toLowerCase().includes(kw)
+  );
 });
-
-onMounted(async () => {
-  const res = await axios.post("/setting/getAiModelMap");
-  modelData.value = res.data;
-});
-
-async function reloadModels() {
-  const res = await axios.post("/setting/getAiModelMap");
-  modelData.value = res.data;
-}
 
 function getProviderLogo(manufacturer: string) {
   if (!manufacturer) return null;
-  const direct = providersLogo[manufacturer as keyof typeof providersLogo];
-  if (direct) return direct;
-  const lk = manufacturer.toLowerCase();
-  for (const k of Object.keys(providersLogo)) {
-    if (k.toLowerCase() === lk) return providersLogo[k as keyof typeof providersLogo];
-  }
-  return null;
+  const key = Object.keys(providersLogo).find((k) => k.toLowerCase() === manufacturer.toLowerCase());
+  return key ? providersLogo[key as keyof typeof providersLogo] : null;
 }
 
 function startConfig(item: ModelType) {
   configingModel.value = item;
-  currentType.value = IMAGE_KEYS.has(item.key) ? "image" : "text";
   modelDataShow.value = true;
 }
 
 function onMenu(opt: { value: string }, model: ModelType) {
   if (opt.value === "config") startConfig(model);
-  else openPromptDialog(model);
 }
 
-// ===== 提示词弹窗 =====
-const promptDialogVisible = ref(false);
-const promptDialogTitle = ref("");
-const relatedPrompts = ref<Prompt[]>([]);
 
-async function openPromptDialog(model: ModelType) {
-  promptDialogTitle.value = model.name;
-  try {
-    const { data: all = [] } = await axios.get("/prompt/getPrompts");
-    const key = model.key.toLowerCase();
-    let matched = all.filter((p: Prompt) => {
-      const code = p.code.toLowerCase();
-      return code.includes(key) || key.includes(code) || p.parentCode?.toLowerCase().includes(key);
-    });
-    if (!matched.length) {
-      const textModel = isTextModel(model.key);
-      matched = all.filter((p: Prompt) => (textModel ? p.type !== "system" : p.type === "system")).slice(0, 10);
-    }
-    relatedPrompts.value = matched.length ? matched : all;
-    promptDialogVisible.value = true;
-  } catch {
-    MessagePlugin.error("获取提示词列表失败");
-  }
-}
 </script>
 
 <style lang="scss" scoped>

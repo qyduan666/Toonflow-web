@@ -3,14 +3,14 @@
     <h2>{{ project?.name }}</h2>
     <div class="actionBar">
       <div class="searchWrapper">
-        <t-input placeholder="搜索剧本名称..." v-model="searchQuery" @change="onChange" size="large" class="searchInput">
+        <t-input placeholder="搜索剧本名称..." v-model="searchQuery" @change="onChange" class="searchInput">
           <template #suffixIcon>
-            <i-search :size="18" class="searchIcon" />
+            <i-search class="searchIcon" />
           </template>
         </t-input>
       </div>
-      <t-button theme="primary" @click="handleAddScript" size="large">
-        <template #icon><i-plus :size="18" /></template>
+      <t-button theme="primary" @click="handleAddScript">
+        <template #icon><i-plus /></template>
         新建剧本
       </t-button>
     </div>
@@ -22,11 +22,11 @@
         <div v-for="(item, index) in scripts" :key="index" @click="handleScriptClick(item)">
           <t-card :title="item.name" hover-shadow :style="{ width: '400px', cursor: 'pointer' }">
             <template #avatar>
-              <i-book-one theme="outline" size="60" />
+              <i-book-one theme="outline" />
             </template>
             <span class="content">{{ item.content }}</span>
             <template #actions>
-              <i-delete theme="outline" size="20" @click.stop="handleDeleteScript(item.id)" style="cursor: pointer" />
+              <i-delete theme="outline" @click.stop="handleDeleteScript(item.id)" style="cursor: pointer" />
             </template>
           </t-card>
         </div>
