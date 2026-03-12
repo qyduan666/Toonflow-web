@@ -13,6 +13,10 @@
         <template #icon><i-plus /></template>
         新建剧本
       </t-button>
+      <t-button theme="primary" @click="handleExportScript">
+        <template #icon><i-plus /></template>
+        导出剧本
+      </t-button>
     </div>
     <div class="contentArea">
       <div v-if="scripts.length === 0" class="emptyState">
@@ -21,9 +25,6 @@
       <div v-else class="scriptsList f w">
         <div v-for="(item, index) in scripts" :key="index" @click="handleScriptClick(item)">
           <t-card :title="item.name" hover-shadow :style="{ width: '400px', cursor: 'pointer' }">
-            <template #avatar>
-              <i-book-one theme="outline" />
-            </template>
             <span class="content">{{ item.content }}</span>
             <template #actions>
               <i-delete theme="outline" @click.stop="handleDeleteScript(item.id)" style="cursor: pointer" />
@@ -75,6 +76,9 @@ function onChange() {
 function handleAddScript() {
   addScriptShow.value = true;
 }
+//导出剧本
+function handleExportScript() {
+}
 const selectedScript = ref<Script>({
   id: 0,
   name: "",
@@ -125,10 +129,6 @@ async function handleDeleteScript(scriptId: number) {
     .searchWrapper {
       flex: 1;
       max-width: 500px;
-      .searchInput {
-        .searchIcon {
-        }
-      }
     }
   }
   .contentArea {
@@ -137,7 +137,6 @@ async function handleDeleteScript(scriptId: number) {
       .content {
         display: -webkit-box;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 1;
         overflow: hidden;
         color: var(--td-text-color-secondary);
       }
