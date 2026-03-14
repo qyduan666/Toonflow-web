@@ -70,6 +70,7 @@ const vendor: VendorConfig = {
   ],
   inputValues: {
     apiKey: "sk-WdEaJIiuT8WUxecni5WiZc5kMuT1jg1NgL2r5VHrozQUeGEf",
+    baseUrl: "http://192.168.0.74:33332/v1",
     text: "http://192.168.0.74:33332/v1",
     image: "http://192.168.0.74:33332/v1/images/generations",
     imageCreate: "http://192.168.0.74:33332/imagegenerator/task",
@@ -241,7 +242,7 @@ const videoRequest = async (videoConfig: VideoConfig, videoModel: VideoModel) =>
       "9:16": "720x1280",
     };
     const body = new FormData();
-    body.append("model", "Sora-2-T2V");
+    body.append("model", videoModel.modelName);
     body.append("prompt", videoConfig.prompt);
     body.append("seconds", String(videoConfig.duration));
 
